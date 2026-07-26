@@ -9,7 +9,7 @@ Note you should always use the forwrd slash "/" no matter what your os separator
 The script named main is the one that is ran by default, every other one will be a library.<br>
 ## Installing/using Modules
 To install a module click on one of the links below and extract the files and take the folder inside and move it to where the modules name implies.<br>
-Eg: if the module name is Linux Amd 64 Python 2026.7.18.3.14.6 put it in the same file as the onyx binary under bin/module/linux/amd/64/go/1.25.12 with 1.25.12 being the name of the folder.<br>
+Eg: if the module name is Linux Amd 64 Python 2026.7.18.3.14.6 put it in the same file as the onyx binary under module/linux/amd/64/go/1.25.12 with 1.25.12 being the name of the folder.<br>
 All modules are named "Os Arch Bits Name Version" and you can download them from the links below:<br>
 [Linux Amd 64 Go 1.25.12](https://go.dev/dl/go1.25.12.linux-amd64.tar.gz)<br>
 [Linux Amd 64 Python 2026.7.18.3.14.6](https://github.com/astral-sh/python-build-standalone/releases/download/20260718/cpython-3.14.6+20260718-x86_64-unknown-linux-gnu-install_only.tar.gz)<br>
