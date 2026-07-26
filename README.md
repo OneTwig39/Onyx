@@ -19,5 +19,5 @@ You can call a library by importing it by the name you gave it in "app" for exam
 ```python
 import library
 
-library(["Go"]) # Returns subprocess.Popen object
+library(["argv1", "argv2"]) # Returns subprocess.Popen object
 ```
