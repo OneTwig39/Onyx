@@ -19,12 +19,12 @@ for argument in sys.argv[1:]:
 	if argument == "shell":
 		target["type"] = "shell"
 
-srcModule = os.path.join(os.path.dirname(os.path.dirname(__file__)), "module",
+srcModule = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "module",
 	"linux" if platform.system() == "Linux" else None,
 	"amd" if platform.machine() == "AMD64" or platform.machine() == "x86_64" else None,
 	"64"
 )
-dstModule = os.path.join(os.path.dirname(os.path.dirname(__file__)), "module",
+dstModule = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "module",
 	target["system"],
 	"amd" if target["arch"] == "amd64" else None,
 	"64"
