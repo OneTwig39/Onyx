@@ -1,7 +1,6 @@
 # Onyx
 Onyx is a free and open source and cross platform build tool designed for compiling multi language projects.
 Onyx is still in beta and documentation has not finished yet.
-
 ## App Structure
 Create a file called "app" and a folder called "src", each line in app defines a script in src.
 Each line must include the name and the path, for example: if the line is: "script/path/to/file.py" that defines a script called "script" at "src/path/to/file.py".
