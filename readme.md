@@ -20,7 +20,7 @@ You can call a library by importing it by the name you gave it in "app" for exam
 ```python
 import library
 
-library(["Go"]) # Returns subprocess.Popen object
+library(["argv1", "arv2"]) # Returns subprocess.Popen object
 ```
 ## Dependancies
 If you wish to make linux appimages, install this dependency for your system and in the same folder as the onyx binary put it under dependency/appimagetool.appimage.<br>
