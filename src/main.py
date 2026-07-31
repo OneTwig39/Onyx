@@ -1,3 +1,4 @@
+import glob
 import os
 import platform
 import re
@@ -16,8 +17,10 @@ for argument in sys.argv[1:]:
 		target["system"] = "linux"
 	if argument == "amd64":
 		target["arch"] = "amd64"
-	if argument == "shell":
-		target["type"] = "shell"
+	if argument == "exe":
+		target["type"] = "exe"
+	if argument == "appimage":
+		target["type"] = "appimage"
 
 srcModule = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "module",
 	"linux" if platform.system() == "Linux" else None,
@@ -29,13 +32,14 @@ dstModule = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file_
 	"amd" if target["arch"] == "amd64" else None,
 	"64"
 )
+dependency = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "dependency")
 
 if os.path.isdir("dst"):
 	shutil.rmtree("dst")
 if os.path.isdir("tmp"):
 	shutil.rmtree("tmp")
-os.mkdir("dst")
-shutil.copytree("src", os.path.join("tmp", "scripts"))
+
+shutil.copytree("src", os.path.join("tmp", "bin", "scripts"))
 
 requirements = []
 scripts = []
@@ -83,8 +87,8 @@ with open("app", "r") as f:
 
 		for index, module in enumerate(modules):
 			if module == "python":
-				if not os.path.isdir(os.path.join("tmp", module, versions[index])):
-					shutil.copytree(os.path.join(dstModule, module, versions[index]), os.path.join("tmp", module, versions[index]))
+				if not os.path.isdir(os.path.join("tmp", "bin", module, versions[index])):
+					shutil.copytree(os.path.join(dstModule, module, versions[index]), os.path.join("tmp", "bin", module, versions[index]))
 					requirements.append(module)
 
 		scripts.append({"name": name, "path": path, "modules": modules, "versions": versions})
@@ -96,15 +100,15 @@ for script in scripts:
 		bootstrap = ["%PATH%" + os.path.join("python", script["versions"][-1], "bin", "python"), "%PATH%" + os.path.join("scripts", os.path.splitext(script["path"])[0] + ".pyc")]
 
 	if script["name"] == "main":
-		if target["system"] == "linux" and target["type"] == "exe":
-			shutil.copy(os.path.join(os.path.dirname(__file__), "boot", "linux"), os.path.join("dst", "app"))
-			with open(os.path.join("dst", "app"), "ab") as f:
+		if target["system"] == "linux":
+			shutil.copy(os.path.join(os.path.dirname(__file__), "boot", "linux"), os.path.join("tmp", "app"))
+			with open(os.path.join("tmp", "app"), "ab") as f:
 				data = b" ".join([cmd.encode() for cmd in bootstrap])
 				f.write(data + len(data).to_bytes(2, byteorder="big"))
 	else:
 		if "python" in requirements:
-			for version in os.listdir(os.path.join("tmp", "python")):
-				with open(os.path.join("tmp", "python", version, "lib", sorted(os.listdir(os.path.join("tmp", "python", version, "lib")))[7], script["name"] + ".py"), "w") as f:
+			for version in os.listdir(os.path.join("tmp", "bin", "python")):
+				with open(os.path.join("tmp", "bin", "python", version, "lib", sorted(os.listdir(os.path.join("tmp", "bin", "python", version, "lib")))[7], script["name"] + ".py"), "w") as f:
 					f.write(f"""\
 import os
 import subprocess
@@ -120,7 +124,7 @@ class _module(sys.modules[__name__].__class__):
 sys.modules[__name__].__class__ = _module\
 """)
 for script in scripts:
-	file = os.path.join("tmp", "scripts", script["path"])
+	file = os.path.join("tmp", "bin", "scripts", script["path"])
 
 	for index, module in enumerate(script["modules"]):
 		if module == "go":
@@ -134,6 +138,28 @@ for script in scripts:
 			shutil.rmtree(os.path.join(os.path.dirname(file), "__pycache__"))
 			file = os.path.splitext(file)[0] + ".pyc"
 
-shutil.copytree("tmp", os.path.join("dst", "bin"))
-if os.path.isdir("tmp"):
-	shutil.rmtree("tmp")
+if target["type"] == "exe":
+	os.rename(os.path.join("tmp", "app"), os.path.join("tmp", os.path.basename(os.getcwd())))
+	shutil.copytree("tmp", "dst")
+if target["type"] == "appimage":
+	os.rename(os.path.join("tmp", "app"), os.path.join("tmp", "AppRun"))
+	with open(os.path.join("tmp", f"{os.path.basename(os.getcwd())}.desktop"), "w") as f:
+		f.write(f"""\
+[Desktop Entry]
+Name={os.path.basename(os.getcwd())}
+Exec=AppRun
+Icon=icon
+Type=Application
+Categories=Utility;\
+""")
+
+	if len(glob.glob("icon.*")) != 0:
+		subprocess.run([os.path.join(dependency, "magick.appimage"), glob.glob("icon.*")[0], os.path.join("tmp", "icon.png")])
+	else:
+		with open(os.path.join("tmp", "icon.png"), "w") as f:
+			f.write("")
+
+	os.mkdir("dst")
+	subprocess.run([os.path.join(dependency, "appimagetool.appimage"), "tmp", os.path.join("dst", f"{os.path.basename(os.getcwd())}.appimage")])
+
+shutil.rmtree("tmp")
